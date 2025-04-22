@@ -1,0 +1,20 @@
+<view class="container">
+  <view class="user-info">
+    <block wx:if="{{!hasUserInfo}}">
+      <button wx:if="{{canIUseGetUserProfile}}" 
+              class="avatar-btn" 
+              bindtap="getUserProfile">
+        点击登录
+      </button>
+    </block>
+    <block wx:else>
+      <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
+      <text class="nickname">{{userInfo.nickName}}</text>
+    </block>
+  </view>
+
+  <van-cell-group>
+    <van-cell title="设置" is-link bind:click="onSettingsTap" />
+    <van-cell title="关于" is-link bind:click="onAboutTap" />
+  </van-cell-group>
+</view> 

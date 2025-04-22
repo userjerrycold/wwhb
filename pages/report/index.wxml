@@ -1,0 +1,39 @@
+<view class="container">
+  <van-tabs active="{{ active }}" bind:change="onTabChange">
+    <van-tab title="日报表">
+      <view class="report-list">
+        <van-cell-group>
+          <van-cell wx:for="{{reportData.daily}}" wx:key="date"
+            title="{{item.date}}"
+            value="¥{{item.amount}}"
+            is-link
+          />
+        </van-cell-group>
+      </view>
+    </van-tab>
+    
+    <van-tab title="周报表">
+      <view class="report-list">
+        <van-cell-group>
+          <van-cell wx:for="{{reportData.weekly}}" wx:key="week"
+            title="{{item.week}}"
+            value="¥{{item.amount}}"
+            is-link
+          />
+        </van-cell-group>
+      </view>
+    </van-tab>
+    
+    <van-tab title="月报表">
+      <view class="report-list">
+        <van-cell-group>
+          <van-cell wx:for="{{reportData.monthly}}" wx:key="month"
+            title="{{item.month}}"
+            value="¥{{item.amount}}"
+            is-link
+          />
+        </van-cell-group>
+      </view>
+    </van-tab>
+  </van-tabs>
+</view> 

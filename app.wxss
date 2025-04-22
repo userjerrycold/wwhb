@@ -1,0 +1,27 @@
+/**app.wxss**/
+page {
+  --primary-color: #1989fa;
+  --success-color: #07c160;
+  --warning-color: #ff976a;
+  --danger-color: #ee0a24;
+  --text-color: #323233;
+  --text-color-gray: #969799;
+  --background-color: #f8f8f8;
+  --active-color: #f2f3f5;
+  --active-opacity: 0.6;
+  --disabled-opacity: 0.5;
+  --background-color-light: #fafafa;
+  --text-link-color: #576b95;
+  
+  font-size: 28rpx;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 30rpx;
+} 

@@ -1,0 +1,20 @@
+.container {
+  padding: 0;
+}
+
+.report-list {
+  padding: 20rpx 0;
+}
+
+.van-cell {
+  padding: 20rpx 30rpx !important;
+}
+
+.van-cell__title {
+  font-size: 28rpx !important;
+}
+
+.van-cell__value {
+  color: var(--primary-color) !important;
+  font-weight: bold;
+} 

@@ -1,0 +1,48 @@
+{
+  "pages": [
+    "pages/chat/index",
+    "pages/report/index",
+    "pages/profile/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "弯宝荷包",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#1989fa",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/chat/index",
+        "text": "聊天",
+        "iconPath": "assets/icons/chat.png",
+        "selectedIconPath": "assets/icons/chat.png"
+      },
+      {
+        "pagePath": "pages/report/index",
+        "text": "报表",
+        "iconPath": "assets/icons/report.png",
+        "selectedIconPath": "assets/icons/report.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "assets/icons/profile.png",
+        "selectedIconPath": "assets/icons/profile.png"
+      }
+    ]
+  },
+  "usingComponents": {
+    "van-button": "./miniprogram_npm/@vant/weapp/button/index",
+    "van-cell": "./miniprogram_npm/@vant/weapp/cell/index",
+    "van-cell-group": "./miniprogram_npm/@vant/weapp/cell-group/index",
+    "van-icon": "./miniprogram_npm/@vant/weapp/icon/index",
+    "van-tab": "./miniprogram_npm/@vant/weapp/tab/index",
+    "van-tabs": "./miniprogram_npm/@vant/weapp/tabs/index",
+    "van-field": "./miniprogram_npm/@vant/weapp/field/index"
+  },
+  "sitemapLocation": "sitemap.json"
+} 

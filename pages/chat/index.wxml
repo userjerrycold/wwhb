@@ -1,0 +1,86 @@
+<view class="chat-container">
+  <!-- 账单统计区域 -->
+  <view class="bill-stats">
+    <view class="stat-item">
+      <text class="stat-label">今日支出</text>
+      <text class="stat-value">¥{{billStats.daily}}</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-label">本月支出</text>
+      <text class="stat-value">¥{{billStats.monthly}}</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-label">本季度</text>
+      <text class="stat-value">¥{{billStats.quarterly}}</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-label">本年支出</text>
+      <text class="stat-value">¥{{billStats.yearly}}</text>
+    </view>
+  </view>
+
+  <!-- 消息列表区域 -->
+  <scroll-view 
+    class="message-list" 
+    scroll-y 
+    scroll-into-view="{{scrollToMessage}}"
+    scroll-with-animation="{{true}}"
+    enhanced="{{true}}"
+    show-scrollbar="{{false}}"
+  >
+    <block wx:for="{{messages}}" wx:key="timestamp">
+      <view class="message-item {{item.isSelf ? 'self' : ''}}" id="msg-{{item.timestamp}}">
+        <!-- 头像 -->
+        <image class="avatar" src="{{item.isSelf ? '/assets/avatar/user.png' : '/assets/avatar/ai.png'}}" />
+        
+        <!-- 消息内容 -->
+        <view class="message-content">
+          <!-- 消费记录消息 -->
+          <block wx:if="{{item.type === 'consumption'}}">
+            <view class="consumption-wrapper">
+              <view class="consumption-header">
+                <image class="category-icon" src="{{item.content.icon}}" />
+                <text class="category-name">{{item.content.category}}</text>
+              </view>
+              <view class="consumption-details">
+                <text class="item-name">{{item.content.item}}</text>
+                <text class="amount">¥{{item.content.amount}}</text>
+              </view>
+            </view>
+          </block>
+          
+          <!-- 文本消息 -->
+          <block wx:elif="{{item.type === 'text'}}">
+            <view class="text-message">{{item.content}}</view>
+          </block>
+          
+          <!-- 时间戳 -->
+          <text class="message-time">{{item.timeStr}}</text>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 加载状态 -->
+    <view class="loading-wrapper" wx:if="{{isLoading}}">
+      <view class="loading-dots">
+        <view class="dot"></view>
+        <view class="dot"></view>
+        <view class="dot"></view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 输入区域 -->
+  <view class="input-area">
+    <input 
+      class="input-box" 
+      value="{{inputValue}}"
+      placeholder="请输入消费记录" 
+      bindinput="onInput"
+      bindconfirm="sendMessage"
+      focus="{{inputFocus}}"
+      adjust-position="{{true}}"
+    />
+    <view class="send-btn" bindtap="sendMessage">发送</view>
+  </view>
+</view> 
