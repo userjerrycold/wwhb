@@ -1,39 +1,48 @@
 <view class="container">
-  <van-tabs active="{{ active }}" bind:change="onTabChange">
-    <van-tab title="日报表">
-      <view class="report-list">
-        <van-cell-group>
-          <van-cell wx:for="{{reportData.daily}}" wx:key="date"
-            title="{{item.date}}"
-            value="¥{{item.amount}}"
-            is-link
-          />
-        </van-cell-group>
+  <view class="header">
+    <text class="title">{{type === 'daily' ? '今日报表' : type === 'monthly' ? '本月报表' : '本年报表'}}</text>
+  </view>
+
+  <view class="charts-container">
+    <!-- 支出收入对比图 -->
+    <view class="chart-card">
+      <view class="chart-title">收支对比</view>
+      <ec-canvas id="incomeExpenseChart" canvas-id="incomeExpenseChart" ec="{{ ec }}"></ec-canvas>
+    </view>
+
+    <!-- 分类占比图 -->
+    <view class="chart-card">
+      <view class="chart-title">分类占比</view>
+      <ec-canvas id="categoryChart" canvas-id="categoryChart" ec="{{ ec }}"></ec-canvas>
+    </view>
+
+    <!-- 趋势图 -->
+    <view class="chart-card">
+      <view class="chart-title">趋势分析</view>
+      <ec-canvas id="trendChart" canvas-id="trendChart" ec="{{ ec }}"></ec-canvas>
+    </view>
+  </view>
+
+  <!-- AI分析 -->
+  <view class="ai-analysis">
+    <view class="analysis-title">AI分析</view>
+    <view class="analysis-content">{{aiAnalysis}}</view>
+  </view>
+
+  <!-- 详细数据列表 -->
+  <view class="data-list">
+    <view class="list-title">详细数据</view>
+    <view class="list-item" wx:for="{{reportData}}" wx:key="date">
+      <view class="item-left">
+        <text class="item-date">{{item.date}}</text>
+        <text class="item-category">{{item.category}}</text>
       </view>
-    </van-tab>
-    
-    <van-tab title="周报表">
-      <view class="report-list">
-        <van-cell-group>
-          <van-cell wx:for="{{reportData.weekly}}" wx:key="week"
-            title="{{item.week}}"
-            value="¥{{item.amount}}"
-            is-link
-          />
-        </van-cell-group>
+      <view class="item-right">
+        <text class="item-name">{{item.item}}</text>
+        <text class="item-amount {{item.isIncome ? 'income' : 'expense'}}">
+          {{item.isIncome ? '+' : '-'}}¥{{item.amount}}
+        </text>
       </view>
-    </van-tab>
-    
-    <van-tab title="月报表">
-      <view class="report-list">
-        <van-cell-group>
-          <van-cell wx:for="{{reportData.monthly}}" wx:key="month"
-            title="{{item.month}}"
-            value="¥{{item.amount}}"
-            is-link
-          />
-        </van-cell-group>
-      </view>
-    </van-tab>
-  </van-tabs>
+    </view>
+  </view>
 </view> 

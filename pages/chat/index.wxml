@@ -1,21 +1,115 @@
 <view class="chat-container">
   <!-- 账单统计区域 -->
   <view class="bill-stats">
-    <view class="stat-item">
-      <text class="stat-label">今日支出</text>
-      <text class="stat-value">¥{{billStats.daily}}</text>
+    <view class="stat-item" bindtap="showReport" data-type="daily">
+      <text class="stat-label">今日</text>
+      <view class="stat-values">
+        <text class="stat-value expense">-¥{{billStats.daily || 0}}</text>
+        <text class="stat-value income">+¥{{billStats.dailyIncome || 0}}</text>
+      </view>
     </view>
-    <view class="stat-item">
-      <text class="stat-label">本月支出</text>
-      <text class="stat-value">¥{{billStats.monthly}}</text>
+    <view class="stat-item" bindtap="showReport" data-type="monthly">
+      <text class="stat-label">本月</text>
+      <view class="stat-values">
+        <text class="stat-value expense">-¥{{billStats.monthly || 0}}</text>
+        <text class="stat-value income">+¥{{billStats.monthlyIncome || 0}}</text>
+      </view>
     </view>
-    <view class="stat-item">
-      <text class="stat-label">本季度</text>
-      <text class="stat-value">¥{{billStats.quarterly}}</text>
+    <view class="stat-item" bindtap="showReport" data-type="yearly">
+      <text class="stat-label">本年</text>
+      <view class="stat-values">
+        <text class="stat-value expense">-¥{{billStats.yearly || 0}}</text>
+        <text class="stat-value income">+¥{{billStats.yearlyIncome || 0}}</text>
+      </view>
     </view>
-    <view class="stat-item">
-      <text class="stat-label">本年支出</text>
-      <text class="stat-value">¥{{billStats.yearly}}</text>
+  </view>
+
+  <!-- 报表弹窗 -->
+  <view class="report-popup" wx:if="{{showReportPopup}}">
+    <view class="popup-mask" bindtap="hideReport"></view>
+    <view class="popup-content">
+      <view class="popup-header">
+        <text class="popup-title">{{reportType === 'daily' ? '今日' : reportType === 'monthly' ? '本月' : '本年'}}报表</text>
+        <view class="popup-actions">
+          <view class="action-btn" bindtap="downloadPDF">下载PDF</view>
+          <view class="action-btn close" bindtap="hideReport">关闭</view>
+        </view>
+      </view>
+      <view class="popup-body">
+        <view class="report-summary">
+          <view class="summary-item">
+            <text class="summary-label">总收入</text>
+            <text class="summary-value income">+¥{{reportData.totalIncome || 0}}</text>
+          </view>
+          <view class="summary-item">
+            <text class="summary-label">总支出</text>
+            <text class="summary-value expense">-¥{{reportData.totalExpense || 0}}</text>
+          </view>
+        </view>
+
+        <!-- 图表区域 -->
+        <view class="chart-container">
+          <ec-canvas id="reportChart" 
+    canvas-id="reportChart" 
+    ec="{{ec}}" 
+    class="report-chart"
+    force-use-old-canvas="true"></ec-canvas>
+        </view>
+
+        <view class="report-analysis">
+          <view class="analysis-title">AI分析</view>
+          <view class="analysis-content">{{reportData.analysis}}</view>
+        </view>
+
+        <view class="report-details">
+          <view class="details-title">详细数据</view>
+          <view class="details-list">
+            <view class="details-item" wx:for="{{reportData.details}}" wx:key="index" bindtap="showDetail" data-item="{{item}}">
+              <image class="item-icon" src="{{item.icon || '/assets/icons/default.png'}}" />
+              <view class="item-info">
+                <text class="item-category">{{item.category}}</text>
+                <text class="item-name">{{item.item}}</text>
+              </view>
+              <text class="item-amount {{item.isIncome ? 'income' : 'expense'}}">
+                {{item.isIncome ? '+' : '-'}}¥{{item.amount}}
+              </text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 详情弹窗 -->
+  <view class="detail-popup" wx:if="{{showDetailPopup}}">
+    <view class="popup-mask" bindtap="hideDetail"></view>
+    <view class="popup-content detail-content">
+      <view class="popup-header">
+        <text class="popup-title">账单详情</text>
+        <view class="popup-actions">
+          <view class="action-btn close" bindtap="hideDetail">关闭</view>
+        </view>
+      </view>
+      <view class="popup-body">
+        <view class="detail-item">
+          <text class="detail-label">时间</text>
+          <text class="detail-value">{{detailData.date}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">类型</text>
+          <text class="detail-value">{{detailData.category}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">项目</text>
+          <text class="detail-value">{{detailData.item}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">金额</text>
+          <text class="detail-value {{detailData.isIncome ? 'income' : 'expense'}}">
+            {{detailData.isIncome ? '+' : '-'}}¥{{detailData.amount}}
+          </text>
+        </view>
+      </view>
     </view>
   </view>
 
@@ -99,4 +193,6 @@
     />
     <view class="send-btn" bindtap="sendMessage">发送</view>
   </view>
+
+
 </view> 

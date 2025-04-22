@@ -42,7 +42,9 @@
     "van-icon": "./miniprogram_npm/@vant/weapp/icon/index",
     "van-tab": "./miniprogram_npm/@vant/weapp/tab/index",
     "van-tabs": "./miniprogram_npm/@vant/weapp/tabs/index",
-    "van-field": "./miniprogram_npm/@vant/weapp/field/index"
+    "van-field": "./miniprogram_npm/@vant/weapp/field/index",
+    "ec-canvas": "./miniprogram_npm/echarts-for-weixin/index"
   },
+  "style": "v2",
   "sitemapLocation": "sitemap.json"
 } 

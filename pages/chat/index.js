@@ -1,3 +1,4 @@
+import * as echarts from '../../miniprogram_npm/echarts-for-weixin/index'
 const app = getApp()
 const deepseek = require('../../utils/deepseek')
 
@@ -5,21 +6,50 @@ Page({
   data: {
     messages: [],
     inputValue: '',
+    currentTimeType: 'daily',
+    billData: [],
     billStats: {
       daily: 0,
+      dailyIncome: 0,
       monthly: 0,
-      quarterly: 0,
-      yearly: 0
+      monthlyIncome: 0,
+      yearly: 0,
+      yearlyIncome: 0
     },
     scrollToMessage: '',
     inputFocus: false,
-    isLoading: false
+    isLoading: false,
+    showReportPopup: false,
+    showDetailPopup: false,
+    reportType: 'daily',
+    reportData: {
+      totalIncome: 0,
+      totalExpense: 0,
+      analysis: '',
+      details: []
+    },
+    detailData: {},
+    ec: {
+      lazyLoad: true,
+      onInit: function(canvas, width, height, dpr) {
+        const chart = echarts.init(canvas, null, {
+          width: width,
+          height: height,
+          devicePixelRatio: dpr
+        })
+        canvas.setChart(chart)
+        return chart
+      }
+    },
+    chartInstance: null // 添加图表实例引用
   },
 
   onLoad() {
     this.loadMessages()
     this.updateBillStats()
+    this.loadBillData()
   },
+  
 
   // 加载消息历史
   loadMessages() {
@@ -35,27 +65,119 @@ Page({
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1)
     const yearStart = new Date(now.getFullYear(), 0, 1)
 
     const messages = this.data.messages
-    let daily = 0, monthly = 0, quarterly = 0, yearly = 0
+    let daily = 0, dailyIncome = 0
+    let monthly = 0, monthlyIncome = 0
+    let yearly = 0, yearlyIncome = 0
 
     messages.forEach(msg => {
       if (msg.type === 'consumption') {
         const msgDate = new Date(msg.timestamp)
         const amount = parseFloat(msg.content.amount)
+        const isIncome = msg.content.isIncome
 
-        if (msgDate >= today) daily += amount
-        if (msgDate >= monthStart) monthly += amount
-        if (msgDate >= quarterStart) quarterly += amount
-        if (msgDate >= yearStart) yearly += amount
+        if (msgDate >= today) {
+          if (isIncome) dailyIncome += amount
+          else daily += amount
+        }
+        if (msgDate >= monthStart) {
+          if (isIncome) monthlyIncome += amount
+          else monthly += amount
+        }
+        if (msgDate >= yearStart) {
+          if (isIncome) yearlyIncome += amount
+          else yearly += amount
+        }
       }
     })
 
     this.setData({
-      billStats: { daily, monthly, quarterly, yearly }
+      billStats: { daily, dailyIncome, monthly, monthlyIncome, yearly, yearlyIncome }
     })
+  },
+
+  // 显示日报表
+  showDailyReport() {
+    wx.navigateTo({
+      url: '/pages/report/index?type=daily',
+      success: (res) => {
+        res.eventChannel.emit('reportData', {
+          type: 'daily',
+          data: this.getReportData('daily')
+        })
+      }
+    })
+  },
+
+  // 显示月报表
+  showMonthlyReport() {
+    wx.navigateTo({
+      url: '/pages/report/index?type=monthly',
+      success: (res) => {
+        res.eventChannel.emit('reportData', {
+          type: 'monthly',
+          data: this.getReportData('monthly')
+        })
+      }
+    })
+  },
+
+  // 显示年报表
+  showYearlyReport() {
+    wx.navigateTo({
+      url: '/pages/report/index?type=yearly',
+      success: (res) => {
+        res.eventChannel.emit('reportData', {
+          type: 'yearly',
+          data: this.getReportData('yearly')
+        })
+      }
+    })
+  },
+
+  // 获取报表数据
+  getReportData(type) {
+    const messages = this.data.messages
+    const now = new Date()
+    let data = []
+
+    messages.forEach(msg => {
+      if (msg.type === 'consumption') {
+        const msgDate = new Date(msg.timestamp)
+        const amount = parseFloat(msg.content.amount)
+        const isIncome = msg.content.isIncome
+
+        if (type === 'daily' && msgDate >= new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
+          data.push({
+            date: msgDate.toLocaleDateString(),
+            amount: isIncome ? amount : -amount,
+            isIncome,
+            item: msg.content.item,
+            category: msg.content.category
+          })
+        } else if (type === 'monthly' && msgDate >= new Date(now.getFullYear(), now.getMonth(), 1)) {
+          data.push({
+            date: msgDate.toLocaleDateString(),
+            amount: isIncome ? amount : -amount,
+            isIncome,
+            item: msg.content.item,
+            category: msg.content.category
+          })
+        } else if (type === 'yearly' && msgDate >= new Date(now.getFullYear(), 0, 1)) {
+          data.push({
+            date: msgDate.toLocaleDateString(),
+            amount: isIncome ? amount : -amount,
+            isIncome,
+            item: msg.content.item,
+            category: msg.content.category
+          })
+        }
+      }
+    })
+
+    return data
   },
 
   // 处理输入变化
@@ -310,5 +432,263 @@ Page({
         }
       }
     })
+  },
+
+  switchTimeType(e) {
+    const type = e.currentTarget.dataset.type
+    this.setData({ currentTimeType: type })
+    this.loadBillData()
+    this.navigateToReport(type)
+  },
+
+  loadBillData() {
+    // 根据currentTimeType加载对应时间段的账单数据
+    const now = new Date()
+    let startDate, endDate
+    
+    switch(this.data.currentTimeType) {
+      case 'daily':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+        break
+      case 'monthly':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+        break
+      case 'yearly':
+        startDate = new Date(now.getFullYear(), 0, 1)
+        endDate = new Date(now.getFullYear(), 11, 31)
+        break
+    }
+
+    // 这里应该调用云函数获取数据
+    // 暂时使用模拟数据
+    const mockData = [
+      { date: '2024-04-22', category: '餐饮', item: '午餐', amount: 30, isIncome: false },
+      { date: '2024-04-22', category: '工资', item: '月薪', amount: 10000, isIncome: true }
+    ]
+    
+    this.setData({ billData: mockData })
+  },
+
+  navigateToReport(type) {
+    wx.navigateTo({
+      url: '/pages/report/index',
+      success: (res) => {
+        res.eventChannel.emit('reportData', { 
+          data: this.data.billData,
+          type: type
+        })
+      }
+    })
+  },
+
+  showReport(e) {
+    const type = e.currentTarget.dataset.type
+    this.setData({ 
+      reportType: type,
+      showReportPopup: true
+    })
+    this.generateReportData(type)
+  },
+
+  hideReport() {
+    this.setData({ showReportPopup: false })
+  },
+
+  showDetail(e) {
+    const item = e.currentTarget.dataset.item
+    this.setData({
+      showDetailPopup: true,
+      detailData: item,
+      showReportPopup: false
+    })
+  },
+
+  hideDetail() {
+    this.setData({ 
+      showDetailPopup: false,
+      showReportPopup: true
+    })
+  },
+
+  generateReportData(type) {
+    const now = new Date()
+    let startDate, endDate
+    
+    switch(type) {
+      case 'daily':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+        break
+      case 'monthly':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+        break
+      case 'yearly':
+        startDate = new Date(now.getFullYear(), 0, 1)
+        endDate = new Date(now.getFullYear(), 11, 31)
+        break
+    }
+
+    // 获取对应时间段的账单数据
+    const details = this.data.messages
+      .filter(msg => msg.type === 'consumption' && new Date(msg.timestamp) >= startDate && new Date(msg.timestamp) <= endDate)
+      .map((msg, index) => ({
+        id: index,
+        date: msg.timeStr,
+        category: msg.content.category,
+        item: msg.content.item,
+        amount: msg.content.amount,
+        isIncome: msg.content.isIncome,
+        icon: msg.content.icon
+      }))
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+
+    const totalIncome = details
+      .filter(item => item.isIncome)
+      .reduce((sum, item) => sum + item.amount, 0)
+
+    const totalExpense = details
+      .filter(item => !item.isIncome)
+      .reduce((sum, item) => sum + item.amount, 0)
+
+    // 生成AI分析
+    const analysis = this.generateAIAnalysis(details, type)
+
+    this.setData({
+      reportData: {
+        totalIncome,
+        totalExpense,
+        analysis,
+        details
+      }
+    }, () => {
+      // 延迟初始化图表，确保组件已渲染
+      setTimeout(() => {
+        this.initChart(details)
+      }, 300)
+    })
+  },
+
+  initChart(details) {
+    // 确保echarts已正确引入
+    if (typeof echarts === 'undefined') {
+      console.error('echarts未正确引入')
+      return
+    }
+
+    // 获取图表组件
+    const chartComponent = this.selectComponent('#reportChart')
+    if (!chartComponent) {
+      console.error('图表组件未找到')
+      return
+    }
+
+    
+
+    // 准备图表数据
+    const categories = {}
+    details.forEach(item => {
+      if (!item.isIncome) {
+        categories[item.category] = (categories[item.category] || 0) + item.amount
+      }
+    })
+
+    const option = {
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {c}元 ({d}%)'
+      },
+      legend: {
+        orient: 'vertical',
+        right: 10,
+        top: 'center',
+        data: Object.keys(categories)
+      },
+      series: [{
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: false,
+          position: 'center'
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '20',
+            fontWeight: 'bold'
+          }
+        },
+        labelLine: {
+          show: false
+        },
+        data: Object.entries(categories).map(([name, value]) => ({
+          value,
+          name,
+          itemStyle: { color: this.getRandomColor() }
+        }))
+      }]
+    }
+
+    // 初始化图表
+    chartComponent.init((canvas, width, height, dpr) => {
+      const chart = echarts.init(canvas, null, {
+        width: width,
+        height: height,
+        devicePixelRatio: dpr
+      })
+      chart.setOption(option)
+      this.setData({ chartInstance: chart }) // 保存图表实例
+      return chart
+    })
+  },
+
+  getRandomColor() {
+    const colors = [
+      '#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1',
+      '#13c2c2', '#eb2f96', '#fa8c16', '#a0d911', '#2f54eb'
+    ]
+    return colors[Math.floor(Math.random() * colors.length)]
+  },
+
+  generateAIAnalysis(details, type) {
+    const totalIncome = details.filter(item => item.isIncome).reduce((sum, item) => sum + item.amount, 0)
+    const totalExpense = details.filter(item => !item.isIncome).reduce((sum, item) => sum + item.amount, 0)
+
+    const categories = {}
+    details.forEach(item => {
+      if (!item.isIncome) {
+        categories[item.category] = (categories[item.category] || 0) + item.amount
+      }
+    })
+
+    const maxCategory = Object.entries(categories).sort((a, b) => b[1] - a[1])[0]
+    
+    let analysis = `根据分析，${type === 'daily' ? '今日' : type === 'monthly' ? '本月' : '本年'}`
+    analysis += `总收入${totalIncome}元，总支出${totalExpense}元。`
+    analysis += `主要支出类别为${maxCategory[0]}，占比${((maxCategory[1] / totalExpense) * 100).toFixed(1)}%。`
+    analysis += `建议合理控制${maxCategory[0]}类支出，保持收支平衡。`
+
+    return analysis
+  },
+
+  downloadPDF() {
+    wx.showLoading({ title: '生成PDF中...' })
+    // 这里需要调用云函数生成PDF
+    // 暂时模拟生成过程
+    setTimeout(() => {
+      wx.hideLoading()
+      wx.showToast({
+        title: 'PDF已保存到相册',
+        icon: 'success'
+      })
+    }, 1500)
   }
 }) 
