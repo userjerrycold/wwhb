@@ -1,3 +1,4 @@
+/* 聊天容器 */
 .chat-container {
   display: flex;
   flex-direction: column;
@@ -35,101 +36,213 @@
 /* 消息列表区域 */
 .message-list {
   flex: 1;
-  padding: 20rpx;
+  padding: 20rpx 0; /* 上下内边距保留，左右设为0 */
   overflow-y: auto;
 }
 
+/* 消息项基础样式 */
 .message-item {
   display: flex;
-  margin-bottom: 30rpx;
+  margin-bottom: 40rpx;
   align-items: flex-start;
+  padding: 0 30rpx; /* 左右内边距确保不贴边 */
+  box-sizing: border-box;
 }
 
+/* 自己发送的消息 */
 .message-item.self {
   flex-direction: row-reverse;
 }
 
+/* 头像样式 */
 .avatar {
   width: 80rpx;
   height: 80rpx;
   border-radius: 50%;
-  margin: 0 20rpx;
+  flex-shrink: 0; /* 防止头像被压缩 */
 }
 
+/* 他人消息头像间距 */
+.message-item:not(.self) .avatar {
+  margin-right: 20rpx;
+  margin-left: 0;
+}
+
+/* 自己消息头像间距 */
+.message-item.self .avatar {
+  margin-left: 20rpx;
+  margin-right: 0;
+}
+
+/* 消息内容区域 */
 .message-content {
-  max-width: 70%;
+  max-width: calc(70% - 20rpx); /* 减去头像的margin */
   position: relative;
+}
+
+/* 文本消息样式 */
+.text-message {
+  padding: 24rpx 32rpx;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 自己发送的文本消息 */
+.message-item.self .text-message {
+  background-color: #95EC69;
+  color: #333;
+}
+
+/* 他人发送的文本消息 */
+.message-item:not(.self) .text-message {
+  background-color: #fff;
+  color: #333;
 }
 
 /* 消费记录消息样式 */
 .consumption-wrapper {
-  background: #f8f9fa;
-  border-radius: 16rpx;
-  padding: 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 16rpx 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  min-width: 450rpx;
+  max-width: 600rpx;
 }
 
 .consumption-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12rpx;
+  padding: 4rpx 0;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 16rpx;
 }
 
-.category-icon {
-  width: 40rpx;
-  height: 40rpx;
-  margin-right: 12rpx;
+.success-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 8rpx;
+}
+
+.header-right {
+  color: #999;
+  font-size: 24rpx;
+  line-height: 32rpx;
+}
+
+.consumption-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.item-row {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.item-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.item-icon {
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 16rpx;
 }
 
 .category-name {
   font-size: 28rpx;
   color: #666;
-}
-
-.consumption-details {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-right: 16rpx;
 }
 
 .item-name {
-  font-size: 32rpx;
+  font-size: 30rpx;
   color: #333;
-  font-weight: 500;
+  width: 100%;
+  text-align: right;
+  padding-right: 4rpx;
+  margin-top: 8rpx;
+  margin-bottom: 16rpx;
+}
+
+.transaction-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 16rpx;
+}
+
+.transaction-type {
+  font-size: 28rpx;
+  color: #666;
 }
 
 .amount {
-  font-size: 32rpx;
-  color: #ff4d4f;
+  font-size: 34rpx;
   font-weight: 600;
 }
 
-/* 文本消息样式 */
-.text-message {
-  background: #fff;
-  padding: 20rpx;
-  border-radius: 16rpx;
-  font-size: 28rpx;
-  color: #333;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+.amount.expense {
+  color: #1890ff;
 }
 
-.message-item.self .text-message {
-  background-color: #95EC69;
-  color: #000;
+.amount.income {
+  color: #ff4d4f;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+  padding: 8rpx 0;
+  margin-top: 8rpx;
+  border-top: 1px solid #eee;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  padding: 4rpx;
+}
+
+.action-button image {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.action-button text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.action-button:active {
+  background: #e8e8e8;
+}
+
+/* AI消息样式 */
+.message-item.ai .text-message {
+  background: #fff;
+  color: #333;
+  font-size: 28rpx;
+  line-height: 1.6;
 }
 
 .message-time {
-  font-size: 24rpx;
-  color: #999;
-  margin-top: 8rpx;
-  display: block;
+  display: none;
 }
 
-/* 输入区域样式 */
+/* 输入区域 */
 .input-area {
   padding: 20rpx;
-  background: #fff;
+  background-color: #fff;
   border-top: 1rpx solid #eee;
   display: flex;
   align-items: center;
@@ -138,10 +251,11 @@
 .input-box {
   flex: 1;
   height: 72rpx;
-  background: #f5f5f5;
+  background-color: #f5f5f5;
   border-radius: 36rpx;
   padding: 0 30rpx;
   font-size: 28rpx;
+  margin-right: 20rpx;
 }
 
 .send-btn {
@@ -190,8 +304,9 @@
   40% { transform: scale(1); }
 }
 
+/* 自己发送的消费记录特殊样式 */
 .message-item.self .consumption-wrapper {
-  background-color: #95EC69;
+  background: #fff;
 }
 
 .message-item.self .category-name {
@@ -200,4 +315,4 @@
 
 .message-item.self .item-name {
   color: #000;
-} 
+}

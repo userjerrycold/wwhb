@@ -46,12 +46,21 @@
             }
         ],
         "minifyWXSS": true,
-        "showES6CompileOption": false
+        "showES6CompileOption": false,
+        "compileWorklet": false,
+        "minifyWXML": true,
+        "localPlugins": false,
+        "disableUseStrict": false,
+        "useCompilerPlugins": false,
+        "condition": false,
+        "swc": false,
+        "disableSWC": true
     },
     "appid": "wx9738cbe5dcd46f83",
     "condition": {},
     "editorSetting": {
         "tabIndent": "insertSpaces",
         "tabSize": 4
-    }
+    },
+    "simulatorPluginLibVersion": {}
 }

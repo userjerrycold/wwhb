@@ -39,12 +39,31 @@
           <block wx:if="{{item.type === 'consumption'}}">
             <view class="consumption-wrapper">
               <view class="consumption-header">
-                <image class="category-icon" src="{{item.content.icon}}" />
-                <text class="category-name">{{item.content.category}}</text>
+                <view class="header-left">
+                  <image class="success-icon" src="/assets/icons/success.png" />
+                </view>
+                <text class="header-right">{{item.timeStr}}</text>
               </view>
               <view class="consumption-details">
-                <text class="item-name">{{item.content.item}}</text>
-                <text class="amount">¥{{item.content.amount}}</text>
+                <view class="item-row">
+                  <view class="item-info">
+                    <image class="item-icon" src="{{item.content.icon}}" />
+                    <text class="category-name">{{item.content.category}}</text>
+                  </view>
+                  <text class="item-name">{{item.content.item}}</text>
+                </view>
+                <view class="transaction-row">
+                  <text class="transaction-type">我 {{item.content.isIncome ? '收入' : '支出'}}</text>
+                  <text class="amount {{item.content.isIncome ? 'income' : 'expense'}}">{{item.content.isIncome ? '+' : '-'}}¥{{item.content.amount}}</text>
+                </view>
+              </view>
+            </view>
+            <view class="action-buttons">
+              <view class="action-button" bindtap="editBill" data-bill="{{item}}">
+                <image src="/assets/icons/edit.png" />
+              </view>
+              <view class="action-button" bindtap="deleteBill" data-bill="{{item}}">
+                <image src="/assets/icons/delete.png" />
               </view>
             </view>
           </block>
@@ -53,9 +72,6 @@
           <block wx:elif="{{item.type === 'text'}}">
             <view class="text-message">{{item.content}}</view>
           </block>
-          
-          <!-- 时间戳 -->
-          <text class="message-time">{{item.timeStr}}</text>
         </view>
       </view>
     </block>

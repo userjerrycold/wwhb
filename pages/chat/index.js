@@ -75,58 +75,60 @@ Page({
       isLoading: true
     })
 
+    // 先添加用户的原始消息
+    this.addTextMessage(content)
+
+    // 智能分析收入支出
+    const isIncome = this.analyzeIncomeOrExpense(content)
+    
     // 解析消费记录
-    const billMatch = content.match(/(.+?)\s*(\d+(\.\d{1,2})?)\s*元/)
+    const billMatch = content.match(/(.+?)\s*(\d+(\.\d{1,2})?)(\s*元)?/)
     if (billMatch) {
       const [_, item, amount] = billMatch
-      this.addBillMessage(item, parseFloat(amount))
-    } else {
-      this.addTextMessage(content)
+      // 不再添加用户的账单消息，直接由AI回复账单确认
+      await this.handleBillAnalysis(item, parseFloat(amount), isIncome)
     }
 
     this.setData({ 
       inputValue: '',
-      inputFocus: true
+      inputFocus: true,
+      isLoading: false
     })
+  },
 
+  // 分析是收入还是支出
+  analyzeIncomeOrExpense(content) {
+    const incomeKeywords = ['收入', '工资', '发工资', '工钱', '奖金', '报销', '收款', '红包', '补贴', '退款']
+    return incomeKeywords.some(keyword => content.includes(keyword))
+  },
+
+  // 处理账单分析
+  async handleBillAnalysis(item, amount, isIncome) {
     try {
-      // 模拟延迟，让加载动画显示更明显
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const analysis = await deepseek.analyzeFinance({
+        type: 'consumption',
+        content: {
+          item,
+          amount,
+          isIncome
+        }
+      })
       
-      // 获取AI分析回复
-      const analysis = await deepseek.analyzeFinance(this.data.messages)
       if (analysis && analysis.length > 0) {
+        // 添加AI的账单确认消息
         this.addMessage(analysis[0])
+        
+        // 延迟1秒后添加分析消息
+        setTimeout(() => {
+          this.addMessage(analysis[1])
+        }, 1000)
       }
     } catch (error) {
       wx.showToast({
         title: error.message || '获取分析失败',
         icon: 'none'
       })
-    } finally {
-      this.setData({ isLoading: false })
     }
-  },
-
-  // 添加账单消息
-  addBillMessage(item, amount) {
-    // 获取消费分类和图标
-    const categoryHelper = require('../../utils/categoryHelper');
-    const category = categoryHelper.getCategory(item);
-    const icon = categoryHelper.getCategoryIcon(category);
-    
-    const message = {
-      type: 'consumption',
-      content: {
-        item,
-        amount,
-        category,
-        icon: `/assets/icons/categories/${icon}`
-      },
-      timestamp: Date.now(),
-      isSelf: true
-    }
-    this.addMessage(message)
   },
 
   // 添加文本消息
@@ -162,6 +164,20 @@ Page({
     this.setData({ 
       messages,
       scrollToMessage: `msg-${message.timestamp}`
+    }, () => {
+      // 使用 nextTick 确保在消息渲染后再滚动
+      wx.nextTick(() => {
+        // 获取消息列表容器
+        const query = wx.createSelectorQuery()
+        query.select('.message-list').node()
+        query.exec((res) => {
+          const scrollView = res[0].node
+          scrollView.scrollTo({
+            top: scrollView.scrollHeight,
+            behavior: 'smooth'
+          })
+        })
+      })
     });
     wx.setStorageSync('chat_messages', messages);
     this.updateBillStats();
@@ -218,6 +234,79 @@ Page({
           })
           wx.removeStorageSync('chat_messages')
           this.updateBillStats()
+        }
+      }
+    })
+  },
+
+  // 编辑账单
+  editBill(e) {
+    const bill = e.currentTarget.dataset.bill
+    wx.showModal({
+      title: '编辑账单',
+      content: '',
+      editable: true,
+      placeholderText: '请输入事项和金额，例如：买药 26',
+      success: async (res) => {
+        if (res.confirm && res.content) {
+          // 解析新的账单信息
+          const billMatch = res.content.match(/(.+?)\s*(\d+(\.\d{1,2})?)(\s*元)?/)
+          if (billMatch) {
+            const [_, item, amount] = billMatch
+            // 更新账单
+            const messages = this.data.messages.map(msg => {
+              if (msg.timestamp === bill.timestamp) {
+                const isIncome = this.analyzeIncomeOrExpense(item)
+                return {
+                  ...msg,
+                  content: {
+                    ...msg.content,
+                    item,
+                    amount: parseFloat(amount),
+                    isIncome
+                  }
+                }
+              }
+              return msg
+            })
+            
+            this.setData({ messages })
+            wx.setStorageSync('chat_messages', messages)
+            this.updateBillStats()
+            
+            // 重新获取AI分析
+            await this.handleBillAnalysis(item, parseFloat(amount), this.analyzeIncomeOrExpense(item))
+          } else {
+            wx.showToast({
+              title: '格式错误',
+              icon: 'none'
+            })
+          }
+        }
+      }
+    })
+  },
+
+  // 删除账单
+  deleteBill(e) {
+    const bill = e.currentTarget.dataset.bill
+    wx.showModal({
+      title: '删除账单',
+      content: '确定要删除这条账单吗？',
+      success: (res) => {
+        if (res.confirm) {
+          // 删除账单消息和相关的AI回复
+          const billIndex = this.data.messages.findIndex(msg => msg.timestamp === bill.timestamp)
+          if (billIndex !== -1) {
+            const messages = this.data.messages.filter((msg, index) => {
+              // 删除账单消息和它后面的第一条AI回复
+              return index !== billIndex && index !== billIndex + 1
+            })
+            
+            this.setData({ messages })
+            wx.setStorageSync('chat_messages', messages)
+            this.updateBillStats()
+          }
         }
       }
     })
