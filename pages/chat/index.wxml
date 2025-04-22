@@ -47,15 +47,6 @@
           </view>
         </view>
 
-        <!-- 图表区域 -->
-        <view class="chart-container">
-          <ec-canvas id="reportChart" 
-    canvas-id="reportChart" 
-    ec="{{ec}}" 
-    class="report-chart"
-    force-use-old-canvas="true"></ec-canvas>
-        </view>
-
         <view class="report-analysis">
           <view class="analysis-title">AI分析</view>
           <view class="analysis-content">{{reportData.analysis}}</view>
@@ -144,11 +135,12 @@
                     <image class="item-icon" src="{{item.content.icon}}" />
                     <text class="category-name">{{item.content.category}}</text>
                   </view>
-                  <text class="item-name">{{item.content.item}}</text>
-                </view>
-                <view class="transaction-row">
-                  <text class="transaction-type">我 {{item.content.isIncome ? '收入' : '支出'}}</text>
-                  <text class="amount {{item.content.isIncome ? 'income' : 'expense'}}">{{item.content.isIncome ? '+' : '-'}}¥{{item.content.amount}}</text>
+                  <view class="amount-info">
+                    <text class="item-name">{{item.content.item}}</text>
+                    <text class="item-amount {{item.content.isIncome ? 'income' : 'expense'}}">
+                      {{item.content.isIncome ? '+' : '-'}}¥{{item.content.amount}}
+                    </text>
+                  </view>
                 </view>
               </view>
             </view>
