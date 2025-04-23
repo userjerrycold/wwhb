@@ -30,10 +30,6 @@
     <view class="popup-content">
       <view class="popup-header">
         <text class="popup-title">{{reportType === 'daily' ? '今日' : reportType === 'monthly' ? '本月' : '本年'}}报表</text>
-        <view class="popup-actions">
-          <view class="action-btn" bindtap="downloadPDF">下载PDF</view>
-          <view class="action-btn close" bindtap="hideReport">关闭</view>
-        </view>
       </view>
       <view class="popup-body">
         <view class="report-summary">
@@ -130,17 +126,16 @@
                 <text class="header-right">{{item.timeStr}}</text>
               </view>
               <view class="consumption-details">
-                <view class="item-row">
-                  <view class="item-info">
-                    <image class="item-icon" src="{{item.content.icon}}" />
-                    <text class="category-name">{{item.content.category}}</text>
-                  </view>
-                  <view class="amount-info">
-                    <text class="item-name">{{item.content.item}}</text>
-                    <text class="item-amount {{item.content.isIncome ? 'income' : 'expense'}}">
-                      {{item.content.isIncome ? '+' : '-'}}¥{{item.content.amount}}
-                    </text>
-                  </view>
+                <view class="consumption-row">
+                  <image class="item-icon" src="{{item.content.icon}}" />
+                  <text class="category-name">{{item.content.category}}</text>
+                  <text class="item-name">{{item.content.item}}</text>
+                </view>
+                <view class="consumption-row">
+                  <text class="income-expense">{{item.content.isIncome ? '我 收 入' : '我 支 出'}}</text>
+                  <text class="item-amount {{item.content.isIncome ? 'income' : 'expense'}}">
+                    {{item.content.isIncome ? '+' : '-'}}¥{{item.content.amount}}
+                  </text>
                 </view>
               </view>
             </view>
@@ -185,6 +180,4 @@
     />
     <view class="send-btn" bindtap="sendMessage">发送</view>
   </view>
-
-
-</view> 
+</view>

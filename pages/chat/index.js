@@ -1,4 +1,3 @@
-import * as echarts from '../../miniprogram_npm/echarts-for-weixin/index'
 const app = getApp()
 const deepseek = require('../../utils/deepseek')
 
@@ -243,7 +242,7 @@ Page({
         // 延迟1秒后添加分析消息
         setTimeout(() => {
           this.addMessage(analysis[1])
-        }, 1000)
+        }, 2000)
       }
     } catch (error) {
       wx.showToast({
@@ -565,88 +564,7 @@ Page({
       }
     }, () => {
       // 延迟初始化图表，确保组件已渲染
-      setTimeout(() => {
-        this.initChart(details)
-      }, 300)
-    })
-  },
-
-  initChart(details) {
-    // 确保echarts已正确引入
-    if (typeof echarts === 'undefined') {
-      console.error('echarts未正确引入')
-      return
-    }
-
-    // 获取图表组件
-    const chartComponent = this.selectComponent('#reportChart')
-    if (!chartComponent) {
-      console.error('图表组件未找到')
-      return
-    }
-
-    
-
-    // 准备图表数据
-    const categories = {}
-    details.forEach(item => {
-      if (!item.isIncome) {
-        categories[item.category] = (categories[item.category] || 0) + item.amount
-      }
-    })
-
-    const option = {
-      tooltip: {
-        trigger: 'item',
-        formatter: '{b}: {c}元 ({d}%)'
-      },
-      legend: {
-        orient: 'vertical',
-        right: 10,
-        top: 'center',
-        data: Object.keys(categories)
-      },
-      series: [{
-        type: 'pie',
-        radius: ['40%', '70%'],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: '#fff',
-          borderWidth: 2
-        },
-        label: {
-          show: false,
-          position: 'center'
-        },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: '20',
-            fontWeight: 'bold'
-          }
-        },
-        labelLine: {
-          show: false
-        },
-        data: Object.entries(categories).map(([name, value]) => ({
-          value,
-          name,
-          itemStyle: { color: this.getRandomColor() }
-        }))
-      }]
-    }
-
-    // 初始化图表
-    chartComponent.init((canvas, width, height, dpr) => {
-      const chart = echarts.init(canvas, null, {
-        width: width,
-        height: height,
-        devicePixelRatio: dpr
-      })
-      chart.setOption(option)
-      this.setData({ chartInstance: chart }) // 保存图表实例
-      return chart
+     
     })
   },
 
@@ -670,6 +588,11 @@ Page({
     })
 
     const maxCategory = Object.entries(categories).sort((a, b) => b[1] - a[1])[0]
+
+    console.log(maxCategory)
+    if(maxCategory === undefined){
+      return '分逼不挣，分逼不花才是真正的高'
+    }
     
     let analysis = `根据分析，${type === 'daily' ? '今日' : type === 'monthly' ? '本月' : '本年'}`
     analysis += `总收入${totalIncome}元，总支出${totalExpense}元。`

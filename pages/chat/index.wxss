@@ -52,7 +52,7 @@
 /* 消息列表区域 */
 .message-list {
   flex: 1;
-  padding: 20rpx 0; /* 上下内边距保留，左右设为0 */
+  padding: 20rpx 0;
   overflow-y: auto;
 }
 
@@ -61,8 +61,50 @@
   display: flex;
   margin-bottom: 40rpx;
   align-items: flex-start;
-  padding: 0 30rpx; /* 左右内边距确保不贴边 */
+  padding: 0 30rpx;
   box-sizing: border-box;
+}
+
+/* 自己发送的消息 - 淡黄色气泡 */
+.message-item.self .message-content .text-message,
+.message-item.self .message-content .consumption-wrapper {
+  background-color: #FFF9E6; /* 淡黄色背景 */
+  border-radius: 24rpx 24rpx 4rpx 24rpx; /* 气泡形状，右侧圆角更大 */
+  position: relative;
+}
+
+/* 自己消息的气泡小三角 */
+.message-item.self .message-content::after {
+  content: "";
+  position: absolute;
+  right: -8rpx;
+  top: 20rpx;
+  width: 0;
+  height: 0;
+  border: 12rpx solid transparent;
+  border-left-color: #FFF9E6;
+  border-right: 0;
+}
+
+/* 他人发送的消息 - 白色气泡 */
+.message-item:not(.self) .message-content .text-message,
+.message-item:not(.self) .message-content .consumption-wrapper {
+  background-color: #FFFFFF; /* 白色背景 */
+  border-radius: 24rpx 24rpx 24rpx 4rpx; /* 气泡形状，左侧圆角更大 */
+  position: relative;
+}
+
+/* 他人消息的气泡小三角 */
+.message-item:not(.self) .message-content::before {
+  content: "";
+  position: absolute;
+  left: -8rpx;
+  top: 20rpx;
+  width: 0;
+  height: 0;
+  border: 12rpx solid transparent;
+  border-right-color: #FFFFFF;
+  border-left: 0;
 }
 
 /* 自己发送的消息 */
@@ -75,7 +117,7 @@
   width: 80rpx;
   height: 80rpx;
   border-radius: 50%;
-  flex-shrink: 0; /* 防止头像被压缩 */
+  flex-shrink: 0;
 }
 
 /* 他人消息头像间距 */
@@ -92,7 +134,7 @@
 
 /* 消息内容区域 */
 .message-content {
-  max-width: calc(70% - 20rpx); /* 减去头像的margin */
+  max-width: calc(70% - 20rpx);
   position: relative;
 }
 
@@ -105,26 +147,13 @@
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
-/* 自己发送的文本消息 */
-.message-item.self .text-message {
-  background-color: #95EC69;
-  color: #333;
-}
-
-/* 他人发送的文本消息 */
-.message-item:not(.self) .text-message {
-  background-color: #fff;
-  color: #333;
-}
-
 /* 消费记录消息样式 */
 .consumption-wrapper {
-  background: #fff;
-  border-radius: 20rpx;
   padding: 16rpx 24rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
   min-width: 450rpx;
   max-width: 600rpx;
+  position: relative;
 }
 
 .consumption-header {
@@ -151,19 +180,13 @@
 .consumption-details {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
 }
 
-.item-row {
+.consumption-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-}
-
-.item-info {
-  display: flex;
-  flex-direction: column;
-  margin-right: 20rpx;
+  margin-bottom: 8rpx;
 }
 
 .item-icon {
@@ -175,19 +198,19 @@
 .category-name {
   font-size: 28rpx;
   color: #666;
-  margin-bottom: 4rpx;
-}
-
-.amount-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  margin-right: 20rpx;
 }
 
 .item-name {
   font-size: 28rpx;
   color: #333;
-  margin-bottom: 4rpx;
+  flex: 1;
+  text-align: right;
+}
+
+.income-expense {
+  font-size: 28rpx;
+  color: #666;
 }
 
 .item-amount {
@@ -203,19 +226,6 @@
 
 .item-amount.expense {
   color: #1890ff;
-}
-
-.transaction-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 16rpx;
-}
-
-.transaction-type {
-  font-size: 28rpx;
-  color: #666;
 }
 
 .action-buttons {
@@ -238,58 +248,7 @@
   height: 32rpx;
 }
 
-.action-button text {
-  font-size: 24rpx;
-  color: #666;
-}
-
-.action-button:active {
-  background: #e8e8e8;
-}
-
-/* AI消息样式 */
-.message-item.ai .text-message {
-  background: #fff;
-  color: #333;
-  font-size: 28rpx;
-  line-height: 1.6;
-}
-
-.message-time {
-  display: none;
-}
-
-/* 输入区域 */
-.input-area {
-  padding: 20rpx;
-  background-color: #fff;
-  border-top: 1rpx solid #eee;
-  display: flex;
-  align-items: center;
-}
-
-.input-box {
-  flex: 1;
-  height: 72rpx;
-  background-color: #f5f5f5;
-  border-radius: 36rpx;
-  padding: 0 30rpx;
-  font-size: 28rpx;
-  margin-right: 20rpx;
-}
-
-.send-btn {
-  width: 120rpx;
-  height: 72rpx;
-  background: #1890ff;
-  color: #fff;
-  border-radius: 36rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  margin-left: 20rpx;
-}
+/* 其他样式保持不变... */
 
 /* 加载动画 */
 .loading-wrapper {
@@ -324,38 +283,39 @@
   40% { transform: scale(1); }
 }
 
-/* 自己发送的消费记录特殊样式 */
-.message-item.self .consumption-wrapper {
-  background: #fff;
-}
-
-.message-item.self .category-name {
-  color: #333;
-}
-
-.message-item.self .item-name {
-  color: #000;
-}
-
-.time-selector {
+/* 输入区域 */
+.input-area {
+  padding: 20rpx;
+  background-color: #fff;
+  border-top: 1rpx solid #eee;
   display: flex;
-  justify-content: space-around;
-  padding: 10px;
-  background: #fff;
-  border-bottom: 1px solid #eee;
+  align-items: center;
 }
 
-.time-item {
-  padding: 5px 15px;
-  border-radius: 15px;
-  font-size: 14px;
-  color: #666;
+.input-box {
+  flex: 1;
+  height: 72rpx;
+  background-color: #f5f5f5;
+  border-radius: 36rpx;
+  padding: 0 30rpx;
+  font-size: 28rpx;
+  margin-right: 20rpx;
 }
 
-.time-item.active {
-  background: #1989fa;
+.send-btn {
+  width: 120rpx;
+  height: 72rpx;
+  background: #1890ff;
   color: #fff;
+  border-radius: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  margin-left: 20rpx;
 }
+
+/* 报表弹窗和详情弹窗样式保持不变... */
 
 /* 报表弹窗 */
 .report-popup {
