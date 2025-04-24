@@ -191,8 +191,10 @@ Page({
     const content = this.data.inputValue.trim()
     if (!content) return
 
-    // 设置加载状态为true，显示加载动画
+    // 立即清空输入框，但保持键盘展开
     this.setData({ 
+      inputValue: '',
+      inputFocus: true,
       isLoading: true
     })
 
@@ -211,9 +213,8 @@ Page({
     }
 
     this.setData({ 
-      inputValue: '',
-      inputFocus: true,
-      isLoading: false
+      isLoading: false,
+      inputFocus: true  // 确保在完成后键盘仍然保持展开
     })
   },
 
@@ -374,29 +375,22 @@ Page({
           const billMatch = res.content.match(/(.+?)\s*(\d+(\.\d{1,2})?)(\s*元)?/)
           if (billMatch) {
             const [_, item, amount] = billMatch
-            // 更新账单
-            const messages = this.data.messages.map(msg => {
-              if (msg.timestamp === bill.timestamp) {
-                const isIncome = this.analyzeIncomeOrExpense(item)
-                return {
-                  ...msg,
-                  content: {
-                    ...msg.content,
-                    item,
-                    amount: parseFloat(amount),
-                    isIncome
-                  }
-                }
-              }
-              return msg
+            const isIncome = this.analyzeIncomeOrExpense(item)
+            
+            // 只删除记账单和AI分析消息
+            const messages = this.data.messages.filter(msg => 
+              !(msg.type === 'consumption' && msg.timestamp === bill.timestamp) &&
+              !(msg.type === 'text' && msg.content.includes('分析') && msg.timestamp > bill.timestamp)
+            )
+            
+            this.setData({ messages }, () => {
+              // 重新生成账单和AI分析
+              this.handleBillAnalysis(item, parseFloat(amount), isIncome)
+              // 更新统计
+              this.updateBillStats()
+              // 保存到本地存储
+              wx.setStorageSync('chat_messages', this.data.messages)
             })
-            
-            this.setData({ messages })
-            wx.setStorageSync('chat_messages', messages)
-            this.updateBillStats()
-            
-            // 重新获取AI分析
-            await this.handleBillAnalysis(item, parseFloat(amount), this.analyzeIncomeOrExpense(item))
           } else {
             wx.showToast({
               title: '格式错误',
@@ -511,7 +505,8 @@ Page({
     })
   },
 
-  generateReportData(type) {
+  // 生成报表数据
+  async generateReportData(type) {
     const now = new Date()
     let startDate, endDate
     
@@ -532,10 +527,14 @@ Page({
 
     // 获取对应时间段的账单数据
     const details = this.data.messages
-      .filter(msg => msg.type === 'consumption' && new Date(msg.timestamp) >= startDate && new Date(msg.timestamp) <= endDate)
-      .map((msg, index) => ({
-        id: index,
-        date: msg.timeStr,
+      .filter(msg => {
+        if (msg.type !== 'consumption') return false
+        const msgDate = new Date(msg.timestamp)
+        return msgDate >= startDate && msgDate < endDate
+      })
+      .map(msg => ({
+        id: msg.timestamp,
+        date: this.formatTime(msg.timestamp),
         category: msg.content.category,
         item: msg.content.item,
         amount: msg.content.amount,
@@ -552,20 +551,82 @@ Page({
       .filter(item => !item.isIncome)
       .reduce((sum, item) => sum + item.amount, 0)
 
-    // 生成AI分析
-    const analysis = this.generateAIAnalysis(details, type)
+    // 使用AI生成分析内容，添加重试机制
+    let retryCount = 0
+    const maxRetries = 3
+    
+    while (retryCount < maxRetries) {
+      try {
+        const analysis = await deepseek.analyzeFinance({
+          type: 'report',
+          content: {
+            type,
+            details,
+            totalIncome,
+            totalExpense
+          }
+        })
 
-    this.setData({
-      reportData: {
-        totalIncome,
-        totalExpense,
-        analysis,
-        details
+        this.setData({
+          reportData: {
+            totalIncome,
+            totalExpense,
+            analysis: analysis[0].content.text,
+            details
+          }
+        })
+        break
+      } catch (error) {
+        console.error(`生成AI分析失败(第${retryCount + 1}次尝试):`, error)
+        retryCount++
+        
+        if (retryCount === maxRetries) {
+          // 所有重试都失败后，使用备用分析
+          const backupAnalysis = this.generateBackupAnalysis(details, type, totalIncome, totalExpense)
+          this.setData({
+            reportData: {
+              totalIncome,
+              totalExpense,
+              analysis: backupAnalysis,
+              details
+            }
+          })
+        } else {
+          // 等待一秒后重试
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
       }
-    }, () => {
-      // 延迟初始化图表，确保组件已渲染
-     
+    }
+  },
+
+  // 生成备用分析内容
+  generateBackupAnalysis(details, type, totalIncome, totalExpense) {
+    const typeText = type === 'daily' ? '今日' : type === 'monthly' ? '本月' : '本年'
+    const categories = {}
+    
+    details.forEach(item => {
+      if (!item.isIncome) {
+        categories[item.category] = (categories[item.category] || 0) + item.amount
+      }
     })
+
+    const sortedCategories = Object.entries(categories)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+
+    let analysis = `${typeText}账单分析：\n`
+    analysis += `总收入：${totalIncome}元\n`
+    analysis += `总支出：${totalExpense}元\n`
+    
+    if (sortedCategories.length > 0) {
+      analysis += `主要支出类别：\n`
+      sortedCategories.forEach(([category, amount], index) => {
+        const percentage = ((amount / totalExpense) * 100).toFixed(1)
+        analysis += `${index + 1}. ${category}：${amount}元 (${percentage}%)\n`
+      })
+    }
+
+    return analysis
   },
 
   getRandomColor() {

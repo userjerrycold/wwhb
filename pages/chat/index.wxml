@@ -112,7 +112,7 @@
     <block wx:for="{{messages}}" wx:key="timestamp">
       <view class="message-item {{item.isSelf ? 'self' : ''}}" id="msg-{{item.timestamp}}">
         <!-- 头像 -->
-        <image class="avatar" src="{{item.isSelf ? '/assets/avatar/user.png' : '/assets/avatar/ai.png'}}" />
+        <image class="avatar" src="{{item.isSelf ? '/assets/avatar/user.png' : '/assets/avatar/avatar1.png'}}" />
         
         <!-- 消息内容 -->
         <view class="message-content">
@@ -121,7 +121,7 @@
             <view class="consumption-wrapper">
               <view class="consumption-header">
                 <view class="header-left">
-                  <image class="success-icon" src="/assets/icons/success.png" />
+                  <text class="header-right">记账成功</text>
                 </view>
                 <text class="header-right">{{item.timeStr}}</text>
               </view>
