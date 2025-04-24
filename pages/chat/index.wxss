@@ -211,6 +211,8 @@
 .income-expense {
   font-size: 28rpx;
   color: #666;
+  margin-top: 50rpx;
+  margin-left: 20rpx;
 }
 
 .item-amount {
@@ -549,4 +551,124 @@
 
 .detail-value.expense {
   color: #1890ff;
+}
+
+/* 记录卡片 */
+.record-card {
+  width: 100%;
+  border-radius: 24rpx;
+  background-color: white;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.05);
+}
+
+.record-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.record-logo {
+  width: 56rpx;
+  height: 56rpx;
+  background-color: #07C160;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  margin-right: 20rpx;
+  font-size: 28rpx;
+}
+
+.record-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  flex: 1;
+}
+
+.record-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.record-detail {
+  margin-bottom: 20rpx;
+}
+
+.record-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20rpx;
+}
+
+.record-category {
+  font-size: 28rpx;
+  color: #666;
+  flex: 1;
+}
+
+.record-amount {
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: right;
+  min-width: 160rpx;
+}
+
+.record-amount.income {
+  color: #FA5151;
+}
+
+.record-amount.expense {
+  color: #1890ff;
+}
+
+.record-divider {
+  height: 1rpx;
+  background-color: #eee;
+  margin: 20rpx 0;
+}
+
+/* 分析文本 */
+.analysis {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.5;
+  padding: 0 20rpx;
+  margin-bottom: 20rpx;
+}
+
+/* 记录操作按钮 */
+.record-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+  padding: 0 20rpx;
+}
+
+.action-btn {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn image {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.6;
+}
+
+.action-btn.edit image {
+  width: 28rpx;
+  height: 28rpx;
+}
+
+.action-btn.delete image {
+  width: 24rpx;
+  height: 24rpx;
 }
