@@ -35,11 +35,10 @@ Page({
     const content = this.data.inputValue.trim()
     if (!content) return
 
-    // 立即清空输入框，但保持键盘展开
+    // 立即清空输入框，并收起键盘
     this.setData({ 
       inputValue: '',
-      inputFocus: true,
-      isLoading: true
+      inputFocus: false
     })
 
     // 先添加用户的原始消息
@@ -55,18 +54,41 @@ Page({
       // 不再添加用户的账单消息，直接由AI回复账单确认
       await this.handleBillAnalysis(item, parseFloat(amount), isIncome)
     }
-
-    // 保持输入框展开状态
-    this.setData({ 
-      isLoading: false,
-      inputFocus: true
-    })
   },
 
   // 分析是收入还是支出
   analyzeIncomeOrExpense(content) {
     const incomeKeywords = [
-      '众筹款', '打赏', '小费', '服务费', '感谢费' 
+      // 工资薪资类
+      '工资', '薪资', '薪水', '薪金', '月薪', '年薪', '基本工资', '绩效工资', '岗位工资', '职务工资',
+      '工钱', '劳务费', '劳务报酬', '稿费', '稿酬', '兼职收入', '外快', '辛苦费', '手工费',
+      '发工资', '发薪', '工资到账', '薪资发放', '工资结算', '工资转账',
+      
+      // 奖金补贴类
+      '奖金', '年终奖', '绩效奖', '季度奖', '项目奖', '提成', '分红', '佣金', '回扣',
+      '补贴', '津贴', '餐补', '交通补贴', '住房补贴', '通讯补贴', '高温补贴', '加班补贴',
+      '福利', '过节费', '节日福利', '生日福利', '慰问金', '礼金', '红包', '压岁钱',
+      
+      // 投资理财类
+      '利息', '股息', '分红', '理财收益', '投资回报', '股票收益', '基金收益', '债券利息',
+      '租金', '房租', '租赁收入', '押金退还', '版权费', '专利费', '特许权使用费',
+      
+      // 退款返还类
+      '退款', '退费', '退押金', '退保证金', '退税款', '退税', '返还', '退回', '返现', '返利',
+      '报销', '费用报销', '差旅报销', '医疗报销', '社保报销', '公积金提取',
+      
+      // 收款转账类
+      '收款', '到账', '入账', '转账收入', '汇款', '打款', '打赏', '赞助', '捐赠收入',
+      '借款收回', '还款', '还钱', '应收款到账', '货款', '尾款', '结算款', '工程款',
+      
+      // 其他收入
+      '中奖', '彩票', '赌博赢钱', '比赛奖金', '奖学金', '助学金', '补助金', '赔偿金',
+      '补偿款', '保险理赔', '保险金', '继承', '赠与', '遗产', '拾得物', '意外之财',
+      
+      // 英文或简写
+      'income', 'salary', 'bonus', 'reward', 'refund', 'reimbursement', 'commission',
+      'fee', 'royalty', 'dividend', 'interest', 'rent', 'payment', 'transfer',
+      '支付宝到账', '微信收款', '银行入账', 'POS入款'
     ];
     
     return incomeKeywords.some(keyword => content.includes(keyword));
@@ -97,6 +119,33 @@ Page({
           }
         }
         this.addMessage(billMessage)
+
+        // 立即执行滚动
+        const query = wx.createSelectorQuery()
+        query.select('.message-list').boundingClientRect()
+        query.selectAll('.message-item').boundingClientRect()
+        query.exec((res) => {
+          if (res[0] && res[1]) {
+            const scrollView = res[0]
+            const messageItems = res[1]
+            const lastMessage = messageItems[messageItems.length - 1]
+            
+            if (lastMessage) {
+              const scrollTop = lastMessage.top - scrollView.top
+              const scrollQuery = wx.createSelectorQuery()
+              scrollQuery.select('.message-list').node()
+              scrollQuery.exec((scrollRes) => {
+                if (scrollRes[0] && scrollRes[0].node) {
+                  const scrollViewNode = scrollRes[0].node
+                  scrollViewNode.scrollTo({
+                    top: scrollTop,
+                    behavior: 'smooth'
+                  })
+                }
+              })
+            }
+          }
+        })
       }
     } catch (error) {
       wx.showToast({
@@ -145,19 +194,34 @@ Page({
       messages,
       scrollToMessage: `msg-${message.timestamp}`
     }, () => {
-      // 使用 nextTick 确保在消息渲染后再滚动
-      wx.nextTick(() => {
-        // 获取消息列表容器
+      // 如果是AI消息，立即滚动到底部
+      if (!message.isSelf) {
         const query = wx.createSelectorQuery()
-        query.select('.message-list').node()
+        query.select('.message-list').boundingClientRect()
+        query.selectAll('.message-item').boundingClientRect()
         query.exec((res) => {
-          const scrollView = res[0].node
-          scrollView.scrollTo({
-            top: scrollView.scrollHeight,
-            behavior: 'smooth'
-          })
+          if (res[0] && res[1]) {
+            const scrollView = res[0]
+            const messageItems = res[1]
+            const lastMessage = messageItems[messageItems.length - 1]
+            
+            if (lastMessage) {
+              const scrollTop = lastMessage.top - scrollView.top
+              const scrollQuery = wx.createSelectorQuery()
+              scrollQuery.select('.message-list').node()
+              scrollQuery.exec((scrollRes) => {
+                if (scrollRes[0] && scrollRes[0].node) {
+                  const scrollViewNode = scrollRes[0].node
+                  scrollViewNode.scrollTo({
+                    top: scrollTop,
+                    behavior: 'smooth'
+                  })
+                }
+              })
+            }
+          }
         })
-      })
+      }
     })
     wx.setStorageSync('chat_messages', messages)
   },

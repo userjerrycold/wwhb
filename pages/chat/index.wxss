@@ -674,8 +674,3 @@
   padding: 0 8rpx;
 }
 
-
-.input-area {
-  padding-bottom: env(safe-area-inset-bottom);
-  transition: transform 0.3s ease;
-}
