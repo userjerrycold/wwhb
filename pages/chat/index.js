@@ -118,34 +118,7 @@ Page({
             analysis: analysis[1].content // 将分析内容添加到账单消息中
           }
         }
-        this.addMessage(billMessage)
-
-        // 立即执行滚动
-        const query = wx.createSelectorQuery()
-        query.select('.message-list').boundingClientRect()
-        query.selectAll('.message-item').boundingClientRect()
-        query.exec((res) => {
-          if (res[0] && res[1]) {
-            const scrollView = res[0]
-            const messageItems = res[1]
-            const lastMessage = messageItems[messageItems.length - 1]
-            
-            if (lastMessage) {
-              const scrollTop = lastMessage.top - scrollView.top
-              const scrollQuery = wx.createSelectorQuery()
-              scrollQuery.select('.message-list').node()
-              scrollQuery.exec((scrollRes) => {
-                if (scrollRes[0] && scrollRes[0].node) {
-                  const scrollViewNode = scrollRes[0].node
-                  scrollViewNode.scrollTo({
-                    top: scrollTop,
-                    behavior: 'smooth'
-                  })
-                }
-              })
-            }
-          }
-        })
+        this.addMessage(billMessage)  
       }
     } catch (error) {
       wx.showToast({
@@ -180,28 +153,28 @@ Page({
   },
 
   // 添加消息
+  // /pages/chat/index.js 修改后的 addMessage 方法
   addMessage(message) {
-    // 确保消息有时间戳和时间字符串
     if (!message.timestamp) {
-      message.timestamp = Date.now()
+      message.timestamp = Date.now();
     }
     if (!message.timeStr) {
-      message.timeStr = this.formatTime(message.timestamp)
+      message.timeStr = this.formatTime(message.timestamp);
     }
 
-    const messages = [...this.data.messages, message]
-    this.setData({ 
-      messages,
-      scrollToMessage: `msg-${message.timestamp}`
-    }, () => {
-      // 简化滚动逻辑，直接使用 scroll-into-view
-      if (!message.isSelf) {
-        this.setData({
-          scrollToMessage: `msg-${message.timestamp}`
-        })
+    const messages = [...this.data.messages, message];
+    this.setData(
+      { messages },
+      () => {
+        // 使用 nextTick 确保视图更新完成
+        wx.nextTick(() => {
+          this.setData({
+            scrollToMessage: `msg-${message.timestamp}`
+          });
+        });
       }
-    })
-    wx.setStorageSync('chat_messages', messages)
+    );
+    wx.setStorageSync('chat_messages', messages);
   },
 
   // 清空消息
