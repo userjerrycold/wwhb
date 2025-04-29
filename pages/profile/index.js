@@ -194,10 +194,32 @@ Page({
       messages,
       scrollToMessage: `msg-${message.timestamp}`
     }, () => {
-      // 简化滚动逻辑，直接使用 scroll-into-view
+      // 如果是AI消息，立即滚动到底部
       if (!message.isSelf) {
-        this.setData({
-          scrollToMessage: `msg-${message.timestamp}`
+        const query = wx.createSelectorQuery()
+        query.select('.message-list').boundingClientRect()
+        query.selectAll('.message-item').boundingClientRect()
+        query.exec((res) => {
+          if (res[0] && res[1]) {
+            const scrollView = res[0]
+            const messageItems = res[1]
+            const lastMessage = messageItems[messageItems.length - 1]
+            
+            if (lastMessage) {
+              const scrollTop = lastMessage.top - scrollView.top
+              const scrollQuery = wx.createSelectorQuery()
+              scrollQuery.select('.message-list').node()
+              scrollQuery.exec((scrollRes) => {
+                if (scrollRes[0] && scrollRes[0].node) {
+                  const scrollViewNode = scrollRes[0].node
+                  scrollViewNode.scrollTo({
+                    top: scrollTop,
+                    behavior: 'smooth'
+                  })
+                }
+              })
+            }
+          }
         })
       }
     })
@@ -229,4 +251,4 @@ Page({
     const bill = e.currentTarget.dataset.bill
     // 实现删除账单功能
   }
-})
+}) 

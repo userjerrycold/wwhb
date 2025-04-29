@@ -1,6 +1,8 @@
 {
   "pages": [
-    "pages/chat/index"
+    "pages/chat/index",
+    "pages/analysis/index",
+    "pages/profile/index"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -8,16 +10,32 @@
     "navigationBarTitleText": "弯宝荷包",
     "navigationBarTextStyle": "black"
   },
-  "usingComponents": {
-    "van-button": "./miniprogram_npm/@vant/weapp/button/index",
-    "van-cell": "./miniprogram_npm/@vant/weapp/cell/index",
-    "van-cell-group": "./miniprogram_npm/@vant/weapp/cell-group/index",
-    "van-icon": "./miniprogram_npm/@vant/weapp/icon/index",
-    "van-tab": "./miniprogram_npm/@vant/weapp/tab/index",
-    "van-tabs": "./miniprogram_npm/@vant/weapp/tabs/index",
-    "van-field": "./miniprogram_npm/@vant/weapp/field/index",
-    "ec-canvas": "./miniprogram_npm/echarts-for-weixin/index"
+  "tabBar": {
+    "color": "#7A7E83",
+    "selectedColor": "#3cc51f",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/chat/index",
+        "text": "记账",
+        "iconPath": "/assets/icons/chat.png",
+        "selectedIconPath": "/assets/icons/chat.png"
+      },
+      {
+        "pagePath": "pages/analysis/index",
+        "text": "分析",
+        "iconPath": "/assets/icons/report.png",
+        "selectedIconPath": "/assets/icons/report.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "/assets/icons/profile.png",
+        "selectedIconPath": "/assets/icons/profile.png"
+      }
+    ]
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"
-} 
+}
