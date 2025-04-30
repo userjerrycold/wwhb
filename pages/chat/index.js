@@ -38,7 +38,8 @@ Page({
     // 立即清空输入框，并收起键盘
     this.setData({ 
       inputValue: '',
-      inputFocus: false
+      inputFocus: false,
+      isLoading: true
     })
 
     // 先添加用户的原始消息
@@ -49,10 +50,16 @@ Page({
     
     // 解析消费记录
     const billMatch = content.match(/(.+?)\s*(\d+(\.\d{1,2})?)(\s*元)?/)
-    if (billMatch) {
-      const [_, item, amount] = billMatch
-      // 不再添加用户的账单消息，直接由AI回复账单确认
-      await this.handleBillAnalysis(item, parseFloat(amount), isIncome)
+    try {
+      if (billMatch) {
+        const [_, item, amount] = billMatch
+        // 不再添加用户的账单消息，直接由AI回复账单确认
+        await this.handleBillAnalysis(item, parseFloat(amount), isIncome)
+      }
+    } catch(error) {
+      console.error('处理账单分析失败:', error.message)
+    } finally {
+      this.setData({ isLoading: false }) // 无论成功失败都关闭加载
     }
   },
 

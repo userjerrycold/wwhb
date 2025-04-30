@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/login/index",
     "pages/chat/index",
     "pages/analysis/index",
     "pages/profile/index"
@@ -10,6 +11,18 @@
     "navigationBarTitleText": "弯宝荷包",
     "navigationBarTextStyle": "black"
   },
+  "usingComponents": {
+    "van-button": "./miniprogram_npm/@vant/weapp/button/index",
+    "van-cell": "./miniprogram_npm/@vant/weapp/cell/index",
+    "van-cell-group": "./miniprogram_npm/@vant/weapp/cell-group/index",
+    "van-icon": "./miniprogram_npm/@vant/weapp/icon/index",
+    "van-tab": "./miniprogram_npm/@vant/weapp/tab/index",
+    "van-tabs": "./miniprogram_npm/@vant/weapp/tabs/index",
+    "van-field": "./miniprogram_npm/@vant/weapp/field/index",
+    "ec-canvas": "./miniprogram_npm/echarts-for-weixin/index"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
   "tabBar": {
     "color": "#7A7E83",
     "selectedColor": "#3cc51f",
@@ -35,7 +48,5 @@
         "selectedIconPath": "/assets/icons/profile.png"
       }
     ]
-  },
-  "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  }
 }

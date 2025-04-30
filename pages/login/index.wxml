@@ -1,0 +1,45 @@
+<view class="container">
+  <!-- 登录卡片 -->
+  <view class="login-card">
+    <!-- 标题 -->
+    <view class="title-container">
+      <text class="title">弯宝荷包</text>
+    </view>
+
+    <!-- AI欢迎语 -->
+    <view class="welcome-message">您好，我是您的AI记账助手，请输入邀请码开始使用</view>
+  
+    <text class="line"></text>
+    <!-- 输入框 -->
+    <view class="input-container">
+      <van-field
+        model:value="{{ inviteCode }}"
+        placeholder="请输入邀请码"
+        border="{{ false }}"
+        bind:change="onInput"
+        custom-style="background: rgba(255, 255, 255, 0.8); border: 1rpx solid rgba(93, 123, 255, 0.3); border-radius: 24rpx; padding: 32rpx; box-shadow: 0 4rpx 16rpx rgba(93, 123, 255, 0.1);"
+        input-style="color: #333; letter-spacing: 2rpx;"
+        placeholder-style="color: #999;"
+      />
+    </view>
+
+    <!-- 登录按钮 -->
+    <view class="button-container">
+      <van-button 
+        type="primary" 
+        block 
+        loading="{{isLoading}}"
+        loading-text="登录中..."
+        bind:click="handleLogin"
+        custom-style="background: linear-gradient(135deg, #FF5D8F, #FF8E9E); border: none; border-radius: 24rpx; height: 88rpx; font-size: 32rpx; font-weight: bold; letter-spacing: 2rpx; box-shadow: 0 8rpx 24rpx rgba(255, 93, 143, 0.3);"
+      >
+        开始智能记账
+      </van-button>
+    </view>
+
+    <!-- 页脚版权信息 -->
+    <view class="footer">
+      © 2025 弯宝荷包 · AI记账助手 · 保留所有权利
+    </view>
+  </view>
+</view> 

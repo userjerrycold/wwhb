@@ -8,14 +8,11 @@
     enhanced="{{true}}"
     show-scrollbar="{{false}}"
   >
-    <!-- 加载状态 -->
-    <view class="loading-wrapper" wx:if="{{isLoading}}">
-      <view class="loading-dots">
-        <view class="dot"></view>
-        <view class="dot"></view>
-        <view class="dot"></view>
-      </view>
-    </view>
+    
+
+    
+
+    
     
     <block wx:for="{{messages}}" wx:key="timestamp">
       <view class="message-item {{item.isSelf ? 'self' : ''}}" id="msg-{{item.timestamp}}">
@@ -64,6 +61,8 @@
               </view>
             </view>
           </block>
+
+
           
           <!-- 文本消息 -->
           <block wx:elif="{{item.type === 'text'}}">
@@ -72,6 +71,15 @@
         </view>
       </view>
     </block>
+
+    <!-- 加载状态 -->
+    <view class="loading-wrapper" wx:if="{{isLoading}}">
+      <view class="loading-dots">
+        <view class="dot"></view>
+        <view class="dot"></view>
+        <view class="dot"></view>
+      </view>
+    </view>
   </scroll-view>
 
   <!-- 输入区域 -->

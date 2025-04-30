@@ -1,2 +1,33 @@
 <!--pages/analysis/index.wxml-->
-<text>pages/analysis/index.wxml</text>
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="logo">弯宝荷包</text>
+    <text class="title">消费分析</text>
+  </view>
+
+  <!-- 主要内容区 -->
+  <view class="content">
+    <!-- 图表占位区域 -->
+    <view class="chart-container">
+      <view class="chart-placeholder">
+        <view class="chart-bar"></view>
+        <view class="chart-bar"></view>
+        <view class="chart-bar"></view>
+        <view class="chart-bar"></view>
+        <view class="chart-bar"></view>
+      </view>
+    </view>
+
+    <!-- AI分析提示 -->
+    <view class="ai-analysis">
+      <view class="ai-icon"></view>
+      <text class="ai-text">AI正在为您分析消费数据...</text>
+    </view>
+
+    <!-- 敬请期待提示 -->
+    <view class="coming-soon">
+      <text class="coming-soon-text">敬请期待</text>
+    </view>
+  </view>
+</view>

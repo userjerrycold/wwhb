@@ -84,31 +84,43 @@ const analyzeFinance = async (message) => {
 const generateAnalysisMessage = async (item, amount, isIncome, category) => {
   try {
     const response = await request('/chat/completions', {
+      method: 'POST', // 明确指定请求方法
       data: {
         model: 'deepseek-chat',
         messages: [
           {
-            role: 'system',
-            content: '你是一个专业的理财顾问朋友，用20-30字以内的口语化方式评论用户的财务状况。要体现专业性和高情商，可以幽默、关心、建议或赞赏，语气要自然友好。'
+            role: "system",
+            // 简化系统提示词避免格式问题
+            content: "你是一个理财顾问，用口语化方式(40-50字)分析用户财务，要幽默,专业且友好"
           },
           {
-            role: 'user',
-            content: `用户${isIncome ? '收到' : '支出'}了 ${amount}元，项目是${item}，属于${category}类别。`
+            role: "user",
+            // 优化请求内容格式
+            content: `项目：${item}，金额：${amount}元，类型：${isIncome ? '收入' : '支出'}，分类：${category}`
           }
         ],
-        temperature: 0.9,
-        max_tokens: 100
+        temperature: 1.3, // 降低随机性
+        max_tokens: 60   // 减少响应长度
+      },
+      header: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'  // 添加 Accept 头
       }
     });
 
+    // 添加响应校验
+    if (!response?.choices?.[0]?.message?.content) {
+      throw new Error('无效的API响应格式');
+    }
+
     return {
       type: 'text',
-      content: response.choices[0].message.content,
+      content: response.choices[0].message.content.trim(),
       timestamp: Date.now(),
       isSelf: false
     };
   } catch (error) {
-    console.error('生成分析消息失败:', error);
+    console.error('生成分析消息失败:', error.message, error.response?.data);
     return {
       type: 'text',
       content: getRandomResponse(item, amount, isIncome, category),

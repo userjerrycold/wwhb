@@ -1,2 +1,49 @@
 <!--pages/profile/index.wxml-->
-<text>pages/profile/index.wxml</text>
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="logo">弯宝荷包</text>
+    <text class="title">个人中心</text>
+  </view>
+
+  <!-- 主要内容区 -->
+  <view class="content">
+    <!-- 用户信息 -->
+    <view class="user-info">
+      <view class="avatar-placeholder"></view>
+      <text class="username">用户昵称</text>
+    </view>
+
+    <!-- 菜单列表 -->
+    <view class="menu-list">
+      <view class="menu-item">
+        <view class="menu-icon settings-icon"></view>
+        <text class="menu-text">系统设置</text>
+        <view class="menu-arrow"></view>
+      </view>
+
+      <view class="menu-item">
+        <view class="menu-icon help-icon"></view>
+        <text class="menu-text">帮助中心</text>
+        <view class="menu-arrow"></view>
+      </view>
+
+      <view class="menu-item">
+        <view class="menu-icon about-icon"></view>
+        <text class="menu-text">关于我们</text>
+        <view class="menu-arrow"></view>
+      </view>
+
+      <view class="menu-item">
+        <view class="menu-icon feedback-icon"></view>
+        <text class="menu-text">意见反馈</text>
+        <view class="menu-arrow"></view>
+      </view>
+    </view>
+
+    <!-- 敬请期待提示 -->
+    <view class="coming-soon">
+      <text class="coming-soon-text">敬请期待</text>
+    </view>
+  </view>
+</view>
